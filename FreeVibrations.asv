@@ -1,5 +1,4 @@
 clear
-%Material properties
 den = 3000;
 wd = 0.1;
 ht = 0.2;
@@ -16,17 +15,12 @@ M = zeros(2*n,2*n);
 for i=1:2:2*(n-1)
     for j=1:4
         for l=1:4
-            K(i+j-1,i+l-1) = K(i+j-1,i+l-1) + K1(j,l); %Stiffness matrix
-            M(i+j-1,i+l-1) = M(i+j-1,i+l-1) + M1(j,l); %Mass matrix
+            K(i+j-1,i+l-1) = K(i+j-1,i+l-1) + K1(j,l);
+            M(i+j-1,i+l-1) = M(i+j-1,i+l-1) + M1(j,l);
         end
     end
 end
-%Eigen values
    [V,D] = eig(K,M);
    w = sqrt(D);
-   f = w/(2*pi);
-   fprintf('Freq =');
-   disp(f(1,1));    %frequency
-   plot(V(:,1),'red','lineWidth',2); hold on;
-   plot(V(:,2),'blue','lineWidth',2); hold on;
-   plot(V(:,3),'magenta','lineWidth',2);
+   
+   

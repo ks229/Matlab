@@ -1,50 +1,32 @@
 clear
-den = input('Enter the density of material :');
-area = input('Enter the area of the beam :');
-len = input('Enter the length of the beam :');
-E = input('Enter value of E for the material :');
-I = input('Enter moment of Inertia :');
-n = input('no of elements :');
-l = len/n;
-K1 = zeros(2*(n+1),2*(n+1));
-M1 = zeros(2*(n+1),2*(n+1));
-for i=1:n      
-    K1(2*i-1,2*i-1) = (12 + K1(2*i-1,2*i-1));       
-    K1((2*i-1),(2*i))= 6*l + K1((2*i-1),(2*i));
-    K1((2*i-1),(2*i+1))=-12 + K1((2*i-1),(2*i+1));   
-    K1((2*i-1),(2*i+2))=6*l+K1((2*i-1),(2*i+2));
-    K1(2*i,(2*i-1))=(6*l+K1(2*i,(2*i-1)));           
-    K1(2*i,2*i)=(4*l*l+K1(2*i,2*i));
-    K1(2*i,(2*i+1))=(-6*l+K1(2*i,(2*i+1)));          
-    K1(2*i,(2*i+2))=(2*l*l+K1(2*i,(2*i+2)));
-    K1((2*i+1),(2*i-1))=(-12+K1((2*i+1),(2*i-1)));   
-    K1((2*i+1),(2*i))=(6*l+K1((2*i+1),(2*i)));
-    K1((2*i+1),(2*i+1))=(12+K1((2*i+1),(2*i+1)));   
-    K1((2*i+1),(2*i+2))=(-6*l+K1((2*i+1),(2*i+2)));
-    K1((2*i+2),(2*i-1))=(6*l+K1((2*i+2),(2*i-1)));   
-    K1((2*i+2),(2*i))=(2*l*l+K1((2*i+2),(2*i)));
-    K1((2*i+2),(2*i+1))=(-6*l+K1((2*i+2),(2*i+1)));   
-    K1((2*i+2),(2*i+2))=(4*l*l+K1((2*i+2),(2*i+2)));
+%Material properties
+den = 3000;
+wd = 0.1;
+ht = 0.2;
+len = 0.5;
+area = wd * ht;
+E = 10^10;
+I = (len*wd^3)/12;
+n=input('Enter no of nodes :');
+l = len/(n-1);
+M1 = (den*l*area/420)*[156 22*l 54 -13*l;22*l 4*l*l 13*l -3*l*l;54 13*l 156 -22*l;-13*l -3*l*l -22*l 4*l*l]
+K1 = (E*I/l^3)*[12 6*l -12 6*l;6*l 4*l*l -6*l 2*l*l;-12 -6*l 12 -6*l;6*l 2*l*l -6*l 4*l*l]
+K = zeros(2*n,2*n);
+M = zeros(2*n,2*n);
+for i=1:2:2*(n-1)
+    for j=1:4
+        for l=1:4
+            K(i+j-1,i+l-1) = K(i+j-1,i+l-1) + K1(j,l); %Stiffness matrix
+            M(i+j-1,i+l-1) = M(i+j-1,i+l-1) + M1(j,l); %Mass matrix
+        end
+    end
 end
-K1 = E*I/(len^3)*K1
-for i=1:n
-    M1((2*i-1),(2*i-1))=(156+M1((2*i-1),(2*i-1)));   
-    M1((2*i-1),(2*i))=(22*l+M1((2*i-1),(2*i)));
-    M1((2*i-1),(2*i+1))=(54+M1((2*i-1),(2*i+1)));   
-    M1((2*i-1),(2*i+2))=(-13*l+M1((2*i-1),(2*i+2)));
-    M1(2*i,(2*i-1))=(22*l+M1(2*i,(2*i-1)));           
-    M1(2*i,2*i)=(4*l*l+M1(2*i,2*i));
-    M1(2*i,(2*i+1))=(13*l)+M1(2*i,(2*i+1));          
-    M1(2*i,(2*i+2))=(-3*l*l+M1(2*i,(2*i+2)));
-    M1((2*i+1),(2*i-1))=(54+M1((2*i+1),(2*i-1)));   
-    M1((2*i+1),(2*i))=(13*l+M1((2*i+1),(2*i)));
-    M1((2*i+1),(2*i+1))=(156+M1((2*i+1),(2*i+1)));   
-    M1((2*i+1),(2*i+2))=(-22*l+M1((2*i+1),(2*i+2)));
-    M1((2*i+2),(2*i-1))=(-13*l+M1((2*i+2),(2*i-1)));   
-    M1((2*i+2),(2*i))=(-3*l*l+M1((2*i+2),(2*i)));
-    M1((2*i+2),(2*i+1))=(-22*l+M1((2*i+2),(2*i+1)));   
-    M1((2*i+2),(2*i+2))=(4*l*l+M1((2*i+2),(2*i+2)));
-end
-M1 = den*area*len/420*M1
-w=(K1*inv(M1));
-freq = (w).^0.5
+%Eigen values
+   [V,D] = eig(K,M);
+   w = sqrt(D);
+   f = w/(2*pi);
+   fprintf('Freq =');
+   disp(f(1,1));    %frequency
+   plot(V(:,1),'red','lineWidth',2); hold on;
+   plot(V(:,2),'blue','lineWidth',2); hold on;
+   plot(V(:,3),'magenta','lineWidth',2);

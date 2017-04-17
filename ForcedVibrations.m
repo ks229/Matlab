@@ -20,13 +20,25 @@ for i=1:2:2*(n-1)
         end
     end
 end
+%boundary conditions
+    K(1,:)=[];
+    K(1,:)=[]; % Second row
+    K(:,1)=[];
+    K(:,1)=[]; % Second column
+    M(1,:)=[];
+    M(1,:)=[]; % Second row
+    M(:,1)=[];
+    M(:,1)=[]; % Second column 
 %initialise values
 a = 10;
-w = 50;
+w = 100;
 alpha = 0.25;
 gamma = 0.5;
-dt = 0.1;     %timestep
-tf = 5;     %time end
+dt = 1;     %timestep
+tf = 20;     %time end
+fprintf('Freq is :');
+Freq = w / (2*pi);
+disp(Freq);
 %integration constants
 a0 = 1/(alpha*dt^2); 
 a1 = gamma/(alpha*dt);
@@ -38,15 +50,15 @@ a6 = dt*(1-alpha);
 a7 = (gamma/alpha-2);
 t = 0;
 i = 1;
-U = zeros(2*n,tf/dt);
-V = zeros(2*n,tf/dt);
-A = zeros(2*n,tf/dt);
+U = zeros(2*(n-1),tf/dt);
+V = zeros(2*(n-1),tf/dt);
+A = zeros(2*(n-1),tf/dt);
 V(:,i+1) = V(:,i) + [(1-gamma)*A(:,i) + gamma*A(:,i+1)]*dt;
 U(:,i+1) = U(:,i) + dt*V(:,i) + [(0.5-alpha)*A(:,i) + alpha*A(:,i+1)]*dt^2;
-F = zeros(2*n,tf/dt);
+F = zeros(2*(n-1),tf/dt);
 Keff= K + a0*M;
 while t<tf
-    F(2*n,i) = a*sin(2*pi*t);
+    F(2*(n-1),i) = a*sin(w*t);
     Feff = F(:,i) + M*(a0*U(:,i) + a2*V(:,i) + 2*A(:,i));
     U(:,i+1) =inv(Keff)*Feff ;
     A(:,i+1) = a0*(U(:,i+1) - U(:,i)) - a2*V(:,i) - a3*A(:,i);
@@ -54,7 +66,6 @@ while t<tf
     t = t + dt;
     i = i + 1;
 end
-U
 plot(U(1,:),'red','lineWidth',2); hold on;
 plot(U(2,:),'blue','lineWidth',2); hold on;
 plot(U(3,:),'magenta','lineWidth',2);
